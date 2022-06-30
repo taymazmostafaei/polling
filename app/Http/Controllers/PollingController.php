@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\polling;
 use App\Models\Selection;
+use App\Models\User;
 use App\Models\Vote;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PollingController extends Controller
 {
@@ -26,7 +28,7 @@ class PollingController extends Controller
      */
     public function search($query)
     {
-        return polling::where('pollingname','like',"%$query%")->get();
+        return polling::where('pollingname', 'like', "%$query%")->get();
     }
 
     /**
@@ -47,9 +49,20 @@ class PollingController extends Controller
      */
     public function store(Request $request, polling $polling, Selection $Selection)
     {
-        dd($request);
+        $validate = Validator::make($request->all(), [
+            "pollingname" => ['required', 'string', 'min:6', 'max:60'],
+            "selections" => ['array', 'required', 'max:20', 'min:2'],
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json($validate->errors(), 400);
+        }
+
+        $user = User::where('email', $request->header('php-auth-user'))->first();
         $polling->pollingname = $request->pollingname;
-        $polling->save();        
+        $polling->user_id = $user->id;
+
+        $polling->save();
 
         foreach ($request->selections as $selection) {
             $Selection->insert([
