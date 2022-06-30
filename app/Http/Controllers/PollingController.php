@@ -47,6 +47,7 @@ class PollingController extends Controller
      */
     public function store(Request $request, polling $polling, Selection $Selection)
     {
+        dd($request);
         $polling->pollingname = $request->pollingname;
         $polling->save();        
 

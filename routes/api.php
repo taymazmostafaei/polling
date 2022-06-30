@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PollingController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,3 +34,5 @@ Route::prefix('pollings')->group(function () {
         Route::post('/vote', [VoteController::class, 'store']);
     });
 });
+
+Route::post('/register', [UserController::class, 'store']);
