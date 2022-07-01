@@ -83,8 +83,10 @@ class PollingController extends Controller
      */
     public function show(polling $polling)
     {
+        $polling->participant;
+        $polling->user;
         $polling->selection;
-        return $polling;
+        return response()->json($polling);
     }
 
     /**

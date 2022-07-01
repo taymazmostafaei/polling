@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Participant;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\Password;
 
-class UserController extends Controller
+class ParticipantController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -38,35 +35,16 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-
-        $rules = [
-            "name" => ['required', 'string'],
-            "email" => ['required', 'email', 'unique:users,email'],
-            "password" => ['required', Password::min(8)->numbers()],
-        ];
-
-        $validater = Validator::make($request->all(), $rules);
-
-        if ($validater->fails()) {
-            return response()->json($validater->errors(), 400);
-        }
-
-        $data = (object) $validater->valid();
-        $user = User::create([
-            'name' => $data->name,
-            'email' => $data->email,
-            'password' => Hash::make($data->password),
-        ]);
-        return response()->json($user, 201);
+        //
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Participant  $participant
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Participant $participant)
     {
         //
     }
@@ -74,10 +52,10 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  \App\Models\Participant  $participant
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Participant $participant)
     {
         //
     }
@@ -86,10 +64,10 @@ class UserController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Models\Participant  $participant
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Participant $participant)
     {
         //
     }
@@ -97,10 +75,10 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  \App\Models\Participant  $participant
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Participant $participant)
     {
         //
     }

@@ -2,96 +2,60 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Participant;
 use App\Models\Selection;
+use App\Models\User;
 use App\Models\Vote;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class VoteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Vote $vote, Selection $Selection)
+    public function store(Request $request, Vote $vote, Selection $Selection, Participant $participant)
     {
+        
+        $user = User::where('email', $request->header('php-auth-user'))->first();
+        $pollingId = false;
+
+        $validate = Validator::make($request->all(), [
+            'selectionIds' => ['array','min:1','max:10']
+        ]);
+
+        if ($validate->fails()) {
+            return response()->json($validate->errors(), 400);
+        }
 
         foreach ($request->selectionIds as $selectionId) {
-            if($selection = $Selection->find($selectionId)) {
+            if ($selection = $Selection->find($selectionId)) {
+
+                #check to not vote twice
+                $participant = $participant::where('user_id', $user->id)->first();
+                if ($participant->polling_id == $selection->polling->id) {
+                    return response()->json(['selectionIds' => 'alredy voted this polling'], 400);
+                }
+
                 $vote->insert([
                     'selection_id' => $selection->id
                 ]);
-            }else{
-                return abort(404);
+
+                # check to not insert two times
+                if ($pollingId != $selection->polling->id) {
+                    $participant->insert([
+                        'user_id' => $user->id,
+                        'polling_id' => $selection->polling->id,
+                    ]);
+                }
+                $pollingId = $selection->polling->id;
+            } else {
+                return response('', 404);
             }
         }
-
-        return 200;
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Vote  $vote
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Vote $vote)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Vote  $vote
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Vote $vote)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Vote  $vote
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Vote $vote)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Vote  $vote
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Vote $vote)
-    {
-        //
+        return;
     }
 }
