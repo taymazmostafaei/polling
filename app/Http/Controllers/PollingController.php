@@ -147,6 +147,6 @@ class PollingController extends Controller
      */
     public function destroy(polling $polling)
     {
-        return $polling->delete();
+        return $polling->delete() ?? response('',422);
     }
 }
